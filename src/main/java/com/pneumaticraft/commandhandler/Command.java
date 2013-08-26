@@ -28,13 +28,13 @@ public abstract class Command {
 
     public Command(Plugin plugin) {
         this.plugin = plugin;
-        this.auxPerms = new ArrayList<Permission>();
-        this.commandKeys = new ArrayList<CommandKey>();
-        this.examples = new ArrayList<String>();
+        this.auxPerms = new ArrayList<>();
+        this.commandKeys = new ArrayList<>();
+        this.examples = new ArrayList<>();
     }
 
     public List<String> getKeyStrings() {
-        List<String> returnList = new ArrayList<String>();
+        List<String> returnList = new ArrayList<>();
         for (CommandKey ck : this.commandKeys) {
             returnList.add(ck.getKey());
         }
@@ -102,8 +102,7 @@ public abstract class Command {
     }
 
     public int getNumKeyArgs(String key) {
-        int identifierLength = key.split(" ").length;
-        return identifierLength;
+        return key.split(" ").length;
     }
 
     public String getPermissionString() {
@@ -123,7 +122,7 @@ public abstract class Command {
         try {
             this.plugin.getServer().getPluginManager().addPermission(this.permission);
             this.addToParentPerms(this.permission.getName());
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
         }
     }
 
@@ -173,7 +172,6 @@ public abstract class Command {
      * If the given permission was 'multiverse.core.tp.self', this would return 'multiverse.core.tp.*'.
      *
      * @param seperated
-     *
      * @return
      */
     private String getParentPerm(String[] seperated) {
@@ -248,35 +246,36 @@ public abstract class Command {
     }
 
     public List<String> getAllPermissionStrings() {
-        List<String> permStrings = new ArrayList<String>();
+        List<String> permStrings = new ArrayList<>();
         permStrings.add(this.permission.getName());
         for (Permission p : this.auxPerms) {
             permStrings.add(p.getName());
         }
         return permStrings;
     }
+
     public void showHelp(CommandSender sender) {
-            sender.sendMessage(ChatColor.AQUA + "--- " + this.getCommandName() + " ---");
-            sender.sendMessage(ChatColor.YELLOW + this.getCommandDesc());
-            sender.sendMessage(ChatColor.DARK_AQUA + this.getCommandUsage());
-            sender.sendMessage("Permission: " + ChatColor.GREEN + this.getPermissionString());
-            String keys = "";
-            for (String key : this.getKeyStrings()) {
-                keys += key + ", ";
-            }
-            keys = keys.substring(0, keys.length() - 2);
-            sender.sendMessage(ChatColor.BLUE + "Aliases: " + ChatColor.RED + keys);
-            if (this.getCommandExamples().size() > 0) {
-                sender.sendMessage(ChatColor.LIGHT_PURPLE + "Examples:");
-                if (sender instanceof Player) {
-                    for (int i = 0; i < 4 && i < this.getCommandExamples().size(); i++) {
-                        sender.sendMessage(this.getCommandExamples().get(i));
-                    }
-                } else {
-                    for (String c : this.getCommandExamples()) {
-                        sender.sendMessage(c);
-                    }
+        sender.sendMessage(ChatColor.AQUA + "--- " + this.getCommandName() + " ---");
+        sender.sendMessage(ChatColor.YELLOW + this.getCommandDesc());
+        sender.sendMessage(ChatColor.DARK_AQUA + this.getCommandUsage());
+        sender.sendMessage("Permission: " + ChatColor.GREEN + this.getPermissionString());
+        String keys = "";
+        for (String key : this.getKeyStrings()) {
+            keys += key + ", ";
+        }
+        keys = keys.substring(0, keys.length() - 2);
+        sender.sendMessage(ChatColor.BLUE + "Aliases: " + ChatColor.RED + keys);
+        if (this.getCommandExamples().size() > 0) {
+            sender.sendMessage(ChatColor.LIGHT_PURPLE + "Examples:");
+            if (sender instanceof Player) {
+                for (int i = 0; i < 4 && i < this.getCommandExamples().size(); i++) {
+                    sender.sendMessage(this.getCommandExamples().get(i));
+                }
+            } else {
+                for (String c : this.getCommandExamples()) {
+                    sender.sendMessage(c);
                 }
             }
         }
+    }
 }

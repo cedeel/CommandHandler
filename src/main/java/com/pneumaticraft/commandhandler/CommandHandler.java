@@ -7,11 +7,7 @@ import org.bukkit.plugin.Plugin;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Level;
 
 public class CommandHandler {
@@ -29,23 +25,21 @@ public class CommandHandler {
         try {
             props.load(this.getClass().getResourceAsStream("/commandhandler.properties"));
             version = Integer.parseInt(props.getProperty("version", "-1"));
-        } catch (NumberFormatException e) {
-            this.logBadCH(plugin);
-        } catch (FileNotFoundException e) {
+        } catch (NumberFormatException | FileNotFoundException e) {
             this.logBadCH(plugin);
         } catch (IOException e) {
             this.logBadCH(plugin);
         }
         this.plugin = plugin;
 
-        this.allCommands = new ArrayList<Command>();
-        this.queuedCommands = new ArrayList<QueuedCommand>();
+        this.allCommands = new ArrayList<>();
+        this.queuedCommands = new ArrayList<>();
         this.permissions = permissions;
     }
 
     private void logBadCH(Plugin plugin) {
         plugin.getLogger().log(Level.SEVERE,
-                        String.format("CommandHandler looks corrupted, meaning this plugin (%s) is corrupted too!",
+                String.format("CommandHandler looks corrupted, meaning this plugin (%s) is corrupted too!",
                         plugin.getDescription().getName()));
     }
 
@@ -54,7 +48,7 @@ public class CommandHandler {
     }
 
     public List<Command> getCommands(CommandSender sender) {
-        List<Command> permissiveCommands = new ArrayList<Command>();
+        List<Command> permissiveCommands = new ArrayList<>();
         for (Command c : this.allCommands) {
             if (this.permissions.hasAnyPermission(sender, c.getAllPermissionStrings(), c.isOpRequired())) {
                 permissiveCommands.add(c);
@@ -73,13 +67,13 @@ public class CommandHandler {
 
     public boolean locateAndRunCommand(CommandSender sender, List<String> args, boolean notifySender) {
         List<String> parsedArgs = parseAllQuotedStrings(args);
-        CommandKey key = null;
+        CommandKey key;
 
         Iterator<Command> iterator = this.allCommands.iterator();
-        Command foundCommand = null;
+        Command foundCommand;
         // Initialize a list of all commands that match:
-        List<Command> foundCommands = new ArrayList<Command>();
-        List<CommandKey> foundKeys = new ArrayList<CommandKey>();
+        List<Command> foundCommands = new ArrayList<>();
+        List<CommandKey> foundKeys = new ArrayList<>();
 
         while (iterator.hasNext()) {
             foundCommand = iterator.next();
@@ -117,7 +111,7 @@ public class CommandHandler {
         int bestMatchInt = 0;
 
         for (int i = 0; i < foundCommands.size(); i++) {
-            List<String> parsedCopy = new ArrayList<String>(parsedArgs);
+            List<String> parsedCopy = new ArrayList<>(parsedArgs);
             foundCommands.get(i).removeKeyArgs(parsedCopy, foundKeys.get(i).getKey());
 
             if (foundCommands.get(i).getNumKeyArgs(foundKeys.get(i).getKey()) > bestMatchInt) {
@@ -153,11 +147,10 @@ public class CommandHandler {
      * Combines all quoted strings
      *
      * @param args
-     *
      * @return
      */
     private List<String> parseAllQuotedStrings(List<String> args) {
-        String arg = null;
+        String arg;
         if (args.size() == 0) {
             arg = "";
         } else {
@@ -169,7 +162,7 @@ public class CommandHandler {
 
         List<String> result = ShellParser.safeParseString(arg);
         if (result == null) {
-            return new ArrayList<String>();
+            return new ArrayList<>();
         } else {
             return result;
         }
@@ -179,7 +172,7 @@ public class CommandHandler {
      * "The command " + ChatColor.RED + commandName + ChatColor.WHITE + " has been halted due to the fact that it could
      * break something!" "If you still wish to execute " + ChatColor.RED + commandName + ChatColor.WHITE
      */
-    public void queueCommand(CommandSender sender, String commandName, String methodName, List<? extends Object> args, Class<?>[] paramTypes, String message, String message2, String success, String fail, int seconds) {
+    public void queueCommand(CommandSender sender, String commandName, String methodName, List<?> args, Class<?>[] paramTypes, String message, String message2, String success, String fail, int seconds) {
         cancelQueuedCommand(sender);
         this.queuedCommands.add(new QueuedCommand(methodName, args, paramTypes, sender, Calendar.getInstance(), this.plugin, success, fail, seconds));
 
@@ -201,7 +194,7 @@ public class CommandHandler {
         sender.sendMessage(ChatColor.GREEN + "/mvconfirm" + ChatColor.WHITE + " will only be available for " + seconds + " seconds.");
     }
 
-    public void queueCommand(CommandSender sender, String commandName, String methodName, List<? extends Object> args, Class<?>[] paramTypes, String success, String fail) {
+    public void queueCommand(CommandSender sender, String commandName, String methodName, List<?> args, Class<?>[] paramTypes, String success, String fail) {
         this.queueCommand(sender, commandName, methodName, args, paramTypes, null, null, success, fail, 10);
     }
 
@@ -209,7 +202,6 @@ public class CommandHandler {
      * Tries to fire off the command
      *
      * @param sender
-     *
      * @return
      */
     public boolean confirmQueuedCommand(CommandSender sender) {
@@ -256,7 +248,6 @@ public class CommandHandler {
      *
      * @param flag A param flag, like -s or -g
      * @param args All arguments to search through
-     *
      * @return A string or null
      */
     public static String getFlag(String flag, List<String> args) {
@@ -268,7 +259,7 @@ public class CommandHandler {
                 }
                 i++;
             }
-        } catch (IndexOutOfBoundsException e) {
+        } catch (IndexOutOfBoundsException ignored) {
         }
         return null;
     }
@@ -281,7 +272,7 @@ public class CommandHandler {
                 foundCommand.showHelp(sender);
             }
         } else {
-            if(notifySender) {
+            if (notifySender) {
                 sender.sendMessage("You do not have any of the required permission(s):");
                 for (String perm : foundCommand.getAllPermissionStrings()) {
                     sender.sendMessage(" - " + ChatColor.GREEN + perm);

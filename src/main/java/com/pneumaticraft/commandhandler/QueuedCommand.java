@@ -9,7 +9,7 @@ import java.util.List;
 
 public class QueuedCommand {
     private String name;
-    private List<? extends Object> args;
+    private List<?> args;
     private Class<?> paramTypes[];
     private CommandSender sender;
     private Plugin plugin;
@@ -19,7 +19,7 @@ public class QueuedCommand {
     private int expiration;
     private boolean alreadyRun;
 
-    public QueuedCommand(String commandName, List<? extends Object> args, Class<?> partypes[], CommandSender sender, Calendar instance, Plugin plugin, String success, String fail, int expiration) {
+    public QueuedCommand(String commandName, List<?> args, Class<?> partypes[], CommandSender sender, Calendar instance, Plugin plugin, String success, String fail, int expiration) {
         this.plugin = plugin;
         this.name = commandName;
         this.args = args;
@@ -38,7 +38,7 @@ public class QueuedCommand {
     public boolean execute() {
         this.timeRequested.add(Calendar.SECOND, this.expiration);
         if (this.timeRequested.after(Calendar.getInstance())) {
-            if(alreadyRun) {
+            if (alreadyRun) {
                 this.sender.sendMessage("This command has already been run! Please type the original command again if you want to rerun it.");
                 return false;
             }
